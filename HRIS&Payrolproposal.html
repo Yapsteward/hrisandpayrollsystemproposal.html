@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom HRIS & Payroll System Development Proposal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    :root {
+      --navy-primary: #0a192f;
+      --navy-deep: #071120;
+      --navy-text: #0d1b3e;
+      --navy-body: #1e293b;
+      --navy-muted: #475569;
+      --lime: #84cc16;
+      --lime-brand: #92d14f;
+      --lime-glow: rgba(146, 209, 79, 0.35);
+      --lime-subtle: rgba(146, 209, 79, 0.08);
+      --lime-border: rgba(146, 209, 79, 0.35);
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #ffffff;
+      color: var(--navy-text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .code-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Ambient Green Gradient Mix on Plain White Background */
+    .ambient-glow-top {
+      position: absolute;
+      top: -120px;
+      right: 10%;
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(146, 209, 79, 0.12) 0%, rgba(34, 197, 94, 0.05) 45%, transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-left {
+      position: absolute;
+      top: 450px;
+      left: -150px;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(163, 230, 53, 0.09) 0%, rgba(16, 185, 129, 0.04) 50%, transparent 70%);
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Document Sheet Styling */
+    .document-sheet {
+      background: #ffffff;
+      border: 1px solid rgba(146, 209, 79, 0.22);
+      box-shadow:
+        0 4px 6px -1px rgba(10, 25, 47, 0.03),
+        0 20px 40px -15px rgba(146, 209, 79, 0.08),
+        0 1px 3px 0 rgba(10, 25, 47, 0.02);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Subtle Transparent Border with Lime Green Touch */
+    .lime-card {
+      background: #ffffff;
+      border: 1px solid rgba(146, 209, 79, 0.28);
+      box-shadow: 0 4px 18px -2px rgba(10, 25, 47, 0.03);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .lime-card:hover {
+      border-color: rgba(146, 209, 79, 0.55);
+      box-shadow:
+        0 12px 30px -4px rgba(146, 209, 79, 0.14),
+        0 4px 12px -2px rgba(10, 25, 47, 0.04);
+      transform: translateY(-2px);
+    }
+
+    /* Smooth Document Sheet Entrance */
+    @keyframes sheetEntrance {
+      0% {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: sheetEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Ultra-Smooth Glitch-Free Bidirectional Scroll Trigger Animation */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      pointer-events: none;
+    }
+
+    .scroll-reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Stagger helpers for cards and lists (active on entrance) */
+    .scroll-reveal.is-visible.scroll-delay-1 {
+      transition-delay: 0.08s;
+    }
+
+    .scroll-reveal.is-visible.scroll-delay-2 {
+      transition-delay: 0.16s;
+    }
+
+    .scroll-reveal.is-visible.scroll-delay-3 {
+      transition-delay: 0.24s;
+    }
+
+    .scroll-reveal.is-visible.scroll-delay-4 {
+      transition-delay: 0.32s;
+    }
+
+    /* Immediate reset on exit to prevent stutter on scroll up/down re-entry */
+    .scroll-reveal:not(.is-visible) {
+      transition-delay: 0s !important;
+    }
+
+    /* Safe hover interaction for revealed cards */
+    .lime-card.scroll-reveal.is-visible:hover {
+      transform: translateY(-2px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+        pointer-events: auto !important;
+      }
+    }
+
+    /* Custom Selection */
+    ::selection {
+      background-color: #92d14f;
+      color: #071120;
+    }
+
+    /* Highlighting for Section 5: AI Tools Cost Row and Column Borders */
+    .highlight-ai-row td {
+      border-top: 2.5px solid #84cc16 !important;
+      border-bottom: 2.5px solid #84cc16 !important;
+      border-right: 2px solid #84cc16 !important;
+      background-color: #f7fee7;
+    }
+
+    .highlight-ai-row td:first-child {
+      border-left: 4.5px solid #65a30d !important;
+    }
+
+    .highlight-ai-row td:last-child {
+      border-right: 3.5px solid #65a30d !important;
+    }
+
+    .highlight-devphase-col {
+      border-left: 2px solid rgba(132, 204, 22, 0.6) !important;
+      border-right: 2px solid rgba(132, 204, 22, 0.6) !important;
+      background-color: rgba(247, 254, 231, 0.45);
+    }
+
+    .highlight-devphase-header {
+      border-left: 2.5px solid #84cc16 !important;
+      border-right: 2.5px solid #84cc16 !important;
+      border-top: 2.5px solid #84cc16 !important;
+      background-color: #ecfccb !important;
+    }
+
+    .highlight-devphase-intersection {
+      border-left: 2.5px solid #65a30d !important;
+      border-right: 2.5px solid #65a30d !important;
+      background-color: #d9f99d !important;
+    }
+
+    /* Clickable Verification Slider Styles & CSS Animations */
+    @keyframes slideFadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .slide-item {
+      display: none;
+      width: 100%;
+    }
+
+    .slide-item.active {
+      display: block !important;
+      animation: slideFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .slide-btn {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .slide-btn:hover {
+      border-color: #84cc16;
+      background-color: #f7fee7;
+      color: #0a192f;
+    }
+
+    .slide-btn.active {
+      background-color: #0a192f !important;
+      color: #92d14f !important;
+      border-color: #84cc16 !important;
+      font-weight: 700 !important;
+      box-shadow: 0 1px 3px rgba(10, 25, 47, 0.15) !important;
+    }
+
+    .proof-img-container {
+      width: 100%;
+      border-radius: 0.875rem;
+      overflow: hidden;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      background-color: #ffffff;
+      box-shadow: 0 1px 3px rgba(10, 25, 47, 0.04);
+      transition: all 0.25s ease;
+    }
+
+    .proof-img-container:hover {
+      border-color: rgba(146, 209, 79, 0.7);
+      box-shadow: 0 4px 16px -2px rgba(10, 25, 47, 0.08), 0 0 12px rgba(146, 209, 79, 0.15);
+    }
+
+    .proof-img-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen relative flex flex-col justify-between py-10 px-4 sm:px-6 lg:px-8">
+
+  <!-- Ambient Green Gradient Glow Elements -->
+  <div class="ambient-glow-top"></div>
+  <div class="ambient-glow-left"></div>
+
+  <!-- Document Sheet Container -->
+  <main class="document-sheet max-w-4xl mx-auto w-full rounded-3xl p-8 sm:p-14 my-4 fade-in">
+
+    <!-- Document Header Meta Bar -->
+    <header class="border-b border-slate-100 pb-8 mb-10">
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+
+        <!-- Live Status Pill with Lime Touch -->
+        <div
+          class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-lime-50/80 border border-lime-300/60 text-xs font-semibold text-[#0a192f]">
+          <span class="w-2 h-2 rounded-full bg-[#84cc16] animate-pulse"></span>
+          <span class="code-font uppercase tracking-wider text-[11px] font-bold">Proposal & Discovery Framework</span>
+        </div>
+
+        <!-- Meta Stamp -->
+        <div class="flex items-center space-x-3 text-xs text-slate-500 code-font">
+          <span class="px-2.5 py-1 bg-slate-50 border border-slate-200/80 rounded-md">STATUS: DISCOVERY</span>
+          <span>•</span>
+          <span>EST. READ: 4 MIN</span>
+        </div>
+      </div>
+
+      <!-- Main Document Title -->
+      <h1 class="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#0a192f] leading-[1.15] tracking-tight mb-4">
+        Custom HRIS & Payroll System <br class="hidden sm:inline" />
+        <span class="bg-gradient-to-r from-[#0a192f] via-[#1e3a8a] to-[#84cc16] bg-clip-text text-transparent">
+          Development Proposal
+        </span>
+      </h1>
+
+      <!-- Sub Head -->
+      <p class="text-base sm:text-lg font-medium text-slate-600 flex items-center space-x-2">
+        <i data-lucide="compass" class="w-4 h-4 text-[#84cc16]"></i>
+        <span>Proposal & Discovery Discussion Framework</span>
+      </p>
+    </header>
+
+    <!-- Content Sections Wrapper -->
+    <div class="space-y-12"> <!-- ================= SECTION 1: INTRODUCTION ================= -->
+      <section>
+        <div class="flex items-center space-x-3 mb-4 scroll-reveal">
+          <div
+            class="w-7 h-7 rounded-lg bg-lime-100/70 border border-lime-300/80 flex items-center justify-center text-[#0a192f] font-bold text-xs code-font">
+            01
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-[#0a192f] tracking-tight">
+            Introduction
+          </h2>
+        </div>
+
+        <div class="space-y-4 text-slate-700 leading-relaxed text-sm sm:text-base">
+          <p class="text-slate-800 font-normal scroll-reveal">
+            Welcome and thank you for taking the time to meet today! The goal of this discussion is to map out a clear
+            blueprint for building a high-performance, custom HRIS & Payroll System.
+          </p>
+
+          <!-- Highlight Intro Callout with Transparent Lime Border -->
+          <div class="lime-card rounded-2xl p-5 sm:p-6 border-l-4 border-l-[#84cc16] scroll-reveal">
+            <p class="text-slate-700 leading-relaxed">
+              Unlike off-the-shelf software with rigid subscription tiers or limited layout flexibility, our approach
+              delivers a <strong class="text-[#0a192f] font-semibold">fully custom platform</strong> tailored to your
+              company's operational structure, statutory tax rules, and workflows—with <strong
+                class="text-[#0a192f] font-semibold">zero long-term developer platform lock-in</strong>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Divider with Soft Lime Touch -->
+      <div class="h-px w-full bg-gradient-to-r from-transparent via-lime-200/60 to-transparent"></div>
+
+      <!-- ================= SECTION 2: DISCOVERY QUESTIONS ================= -->
+      <section>
+        <div class="flex items-center space-x-3 mb-4 scroll-reveal">
+          <div
+            class="w-7 h-7 rounded-lg bg-lime-100/70 border border-lime-300/80 flex items-center justify-center text-[#0a192f] font-bold text-xs code-font">
+            02
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-[#0a192f] tracking-tight">
+            Discovery Questions (Pre-Discussion Checklist)
+          </h2>
+        </div>
+
+        <p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6 scroll-reveal">
+          Before diving into the technical architecture and budget models, let's align on three foundational parameters:
+        </p>
+
+        <!-- 3 Discovery Question Parameter Cards -->
+        <div class="grid grid-cols-1 gap-4 sm:gap-5">
+
+          <!-- Parameter 1: Preferred Timeline -->
+          <div class="lime-card rounded-2xl p-5 sm:p-6 relative overflow-hidden scroll-reveal scroll-delay-1">
+            <div class="flex items-start space-x-4">
+              <div
+                class="w-10 h-10 rounded-xl bg-lime-50 border border-lime-200/90 flex items-center justify-center text-[#0a192f] shrink-0 mt-0.5">
+                <i data-lucide="calendar" class="w-5 h-5 text-[#84cc16]"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="text-sm font-bold text-[#0a192f] uppercase tracking-wider">
+                    Preferred Timeline
+                  </h3>
+                  <span
+                    class="code-font text-[10px] uppercase font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                    Parameter 01
+                  </span>
+                </div>
+                <p class="text-slate-700 text-sm sm:text-base leading-relaxed">
+                  What is your target launch window or deadline for Phase 1 (MVP) rollout?
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Parameter 2: Expected Project Budget -->
+          <div class="lime-card rounded-2xl p-5 sm:p-6 relative overflow-hidden scroll-reveal scroll-delay-2">
+            <div class="flex items-start space-x-4">
+              <div
+                class="w-10 h-10 rounded-xl bg-lime-50 border border-lime-200/90 flex items-center justify-center text-[#0a192f] shrink-0 mt-0.5">
+                <i data-lucide="wallet" class="w-5 h-5 text-[#84cc16]"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="text-sm font-bold text-[#0a192f] uppercase tracking-wider">
+                    Expected Project Budget
+                  </h3>
+                  <span
+                    class="code-font text-[10px] uppercase font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                    Parameter 02
+                  </span>
+                </div>
+                <p class="text-slate-700 text-sm sm:text-base leading-relaxed">
+                  What budget range have you allocated for the overall design, development, and deployment of the
+                  payroll system?
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Parameter 3: Preferred Tools or Platform Ecosystem -->
+          <div class="lime-card rounded-2xl p-5 sm:p-6 relative overflow-hidden scroll-reveal scroll-delay-3">
+            <div class="flex items-start space-x-4">
+              <div
+                class="w-10 h-10 rounded-xl bg-lime-50 border border-lime-200/90 flex items-center justify-center text-[#0a192f] shrink-0 mt-0.5">
+                <i data-lucide="cpu" class="w-5 h-5 text-[#84cc16]"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="text-sm font-bold text-[#0a192f] uppercase tracking-wider">
+                    Preferred Tools or Platform Ecosystem
+                  </h3>
+                  <span
+                    class="code-font text-[10px] uppercase font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                    Parameter 03
+                  </span>
+                </div>
+                <p class="text-slate-700 text-sm sm:text-base leading-relaxed">
+                  Do you have existing cloud infrastructure, databases, or productivity software (e.g., <span
+                    class="font-medium text-[#0a192f]">Supabase, Google Workspace, AWS, Vercel</span>) that you would
+                  like us to integrate with?
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Divider with Soft Lime Touch -->
+      <div class="h-px w-full bg-gradient-to-r from-transparent via-lime-200/60 to-transparent"></div>
+
+      <!-- ================= SECTION 3: WHY VIBE CODING ================= -->
+      <section>
+        <div class="flex items-center space-x-3 mb-4 scroll-reveal">
+          <div
+            class="w-7 h-7 rounded-lg bg-lime-100/70 border border-lime-300/80 flex items-center justify-center text-[#0a192f] font-bold text-xs code-font">
+            03
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-[#0a192f] tracking-tight">
+            Why Choose Vibe Coding (AI-First Development)?
+          </h2>
+        </div>
+
+        <p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6 scroll-reveal">
+          To build a custom HRIS that captures the sleek, modern aesthetic of Salarium while maintaining backend engine
+          performance, we evaluated three development approaches:
+        </p>
+
+        <!-- 4-Column Comparison Table with Plain Background and Lime-Accented Borders -->
+        <div class="overflow-x-auto rounded-2xl border border-[rgba(146,209,79,0.35)] shadow-sm scroll-reveal">
+          <table class="w-full text-left text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr style="background-color: #f3f6fc;" class="border-b border-[rgba(146,209,79,0.35)]">
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[150px]">
+                  Criterion
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[210px]">
+                  Vibe Coding (AI-First)
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[210px]">
+                  Low-Code (Retool / Appsmith)
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold min-w-[200px]">
+                  Traditional Custom Code
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[rgba(146,209,79,0.25)] text-slate-700">
+              <!-- Row 1: Salarium UI / UX Quality -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Salarium UI / UX Quality
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-[#0a192f]">Pixel-Perfect</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">(Unlimited styling freedom using Next.js, Tailwind
+                    CSS, &amp; Shadcn UI)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-semibold text-slate-800">Rigid &amp; Blocky</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">(Standard administrative tables; cannot match
+                    Salarium visual polish)</span>
+                </td>
+                <td class="p-3.5 sm:p-4">
+                  <span class="font-semibold text-slate-800">Pixel-Perfect</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">(Full manual design control)</span>
+                </td>
+              </tr>
+
+              <!-- Row 2: Speed to Launch -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Speed to Launch
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-[#0a192f]">Rapid</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">(2 to 6 weeks for Phase 1 MVP)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-semibold text-slate-800">Fast</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">(2 to 5 weeks for basic workflows)</span>
+                </td>
+                <td class="p-3.5 sm:p-4">
+                  <span class="font-semibold text-slate-800">Slow</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">(8 to 12+ weeks of manual labor)</span>
+                </td>
+              </tr>
+
+              <!-- Row 3: Code & Data Ownership -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Code &amp; Data Ownership
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-[#0a192f]">100% Full Ownership</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">(Clean, custom repository code; zero lock-in)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-semibold text-slate-800">Vendor Lock-in</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">(Dependent on platform fees &amp; user seat
+                    limits)</span>
+                </td>
+                <td class="p-3.5 sm:p-4">
+                  <span class="font-semibold text-slate-800">100% Full Ownership</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">(Custom repository code)</span>
+                </td>
+              </tr>
+
+              <!-- Row 4: Recommendation Rank -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Recommendation Rank
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span
+                    class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-lime-50/90 border border-lime-300 text-[#0a192f] font-extrabold text-xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#84cc16]"></span>
+                    <span>#1 Recommended</span>
+                  </span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-slate-700 text-xs sm:text-sm">#2 Second Choice</span>
+                </td>
+                <td class="p-3.5 sm:p-4">
+                  <span class="font-medium text-slate-500 text-xs sm:text-sm">#3 Least Recommended</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Key Highlights Below Table -->
+        <div class="mt-8">
+          <h3 class="text-base sm:text-lg font-bold text-[#0a192f] mb-4 flex items-center space-x-2 scroll-reveal">
+            <i data-lucide="check-circle" class="w-4 h-4 text-[#84cc16]"></i>
+            <span>Why Vibe Coding is the Top Recommendation:</span>
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Reason 1: Salarium-Level Aesthetic -->
+            <div
+              class="lime-card rounded-2xl p-5 border-l-4 border-l-[#84cc16] flex flex-col justify-between scroll-reveal scroll-delay-1">
+              <div>
+                <h4 class="font-bold text-[#0a192f] text-sm sm:text-base mb-2">
+                  Salarium-Level Aesthetic:
+                </h4>
+                <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                  Low-code platforms like Retool force you into rigid, blocky UI containers. Vibe coding lets us build
+                  custom slide-over drawers, attendance timelines, and employee leave cards matching the polished
+                  Salarium user experience.
+                </p>
+              </div>
+            </div>
+
+            <!-- Reason 2: True Source Ownership -->
+            <div
+              class="lime-card rounded-2xl p-5 border-l-4 border-l-[#84cc16] flex flex-col justify-between scroll-reveal scroll-delay-2">
+              <div>
+                <h4 class="font-bold text-[#0a192f] text-sm sm:text-base mb-2">
+                  True Source Ownership:
+                </h4>
+                <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                  Unlike SaaS or low-code options that charge per-user monthly fees forever, you retain 100% ownership
+                  of your source code and database.
+                </p>
+              </div>
+            </div>
+
+            <!-- Reason 3: Speed Without Sacrificing Quality -->
+            <div
+              class="lime-card rounded-2xl p-5 border-l-4 border-l-[#84cc16] flex flex-col justify-between scroll-reveal scroll-delay-3">
+              <div>
+                <h4 class="font-bold text-[#0a192f] text-sm sm:text-base mb-2">
+                  Speed Without Sacrificing Quality:
+                </h4>
+                <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                  It provides the rapid delivery of low-code combined with the enterprise capability of traditional
+                  custom software.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Divider with Soft Lime Touch -->
+      <div class="h-px w-full bg-gradient-to-r from-transparent via-lime-200/60 to-transparent"></div>
+
+      <!-- ================= SECTION 4: AI TOOLING BENCHMARK ================= -->
+      <section>
+        <div class="flex items-center space-x-3 mb-4 scroll-reveal">
+          <div
+            class="w-7 h-7 rounded-lg bg-lime-100/70 border border-lime-300/80 flex items-center justify-center text-[#0a192f] font-bold text-xs code-font">
+            04
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-[#0a192f] tracking-tight">
+            AI Tooling Benchmark for HRIS &amp; Payroll Development
+          </h2>
+        </div>
+
+        <p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6 scroll-reveal scroll-delay-1">
+          To build a reliable enterprise system, we analyzed the pricing models, monthly usable capacity, and credit
+          mechanics of leading AI development platforms:
+        </p>
+
+        <!-- TABLE 1: Tooling Comparison Table -->
+        <div
+          class="overflow-x-auto rounded-2xl border border-[rgba(146,209,79,0.35)] shadow-sm scroll-reveal scroll-delay-2">
+          <table class="w-full text-left text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr style="background-color: #f3f6fc;" class="border-b border-[rgba(146,209,79,0.35)]">
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[150px]">
+                  Tool / Platform
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[130px]">
+                  Monthly Pricing
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[210px]">
+                  How Credits &amp; Limits Work
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[190px]">
+                  Usable Monthly Capacity
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold min-w-[220px]">
+                  Best Fit for HRIS &amp; Payroll Build
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[rgba(146,209,79,0.25)] text-slate-700">
+              <!-- Lovable Pro -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Lovable Pro
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-semibold text-[#0a192f]">
+                  $25 / mo (₱1,500)
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-slate-800">Fixed Credit Burn:</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">• 100 base credits/mo</span>
+                  <span class="text-slate-600 block text-xs">• 5 bonus daily build credits</span>
+                  <span class="text-slate-500 block text-[11px] mt-0.5">• 1 prompt = 1 credit burn</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-rose-700">~100 to 250 prompts / mo</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">Depletes in 4–7 days of active multi-page
+                    development; requires paid top-ups.</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs">
+                  <span class="font-semibold text-slate-800">Rapid UI Mockups Only:</span> Excellent for non-technical
+                  wireframe previews. <span class="text-rose-600 font-medium">Poor for backend payroll logic and tax
+                    algorithms.</span>
+                </td>
+              </tr>
+
+              <!-- Antigravity Pro -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  <span>Antigravity Pro</span>
+                  <span class="text-[11px] text-slate-500 font-normal block mt-0.5">(Google AI Pro)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-bold text-[#0a192f]">
+                  $19.99 / mo (₱1,100)
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-teal-800">5-Hour Rolling Refill:</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">• Quota auto-resets every 5 hours</span>
+                  <span class="text-slate-600 block text-xs">• Unlimited passive tab autocomplete</span>
+                  <span class="text-slate-600 block text-xs">• 4x–5x token volume of Free tier</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-teal-800">Thousands of iterations / mo</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">Refills 4–5 times daily; zero credit-exhaustion
+                    anxiety during heavy coding.</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs">
+                  <span class="font-semibold text-slate-800">Full-Stack IDE Pair Programmer:</span> Works directly
+                  inside VS Code with Git, tests terminal scripts, and builds full-stack PostgreSQL + tax math with zero
+                  throwaway code.
+                </td>
+              </tr>
+
+              <!-- Antigravity Ultra -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Antigravity Ultra
+                  <span class="text-[11px] text-slate-500 font-normal block mt-0.5">(5x to 20x Tiers)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-semibold text-[#0a192f]">
+                  ₱5,999 per month
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-slate-800">Multi-Agent High Throughput:</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">• 5x to 20x rate limit of Pro</span>
+                  <span class="text-slate-600 block text-xs">• 5-hour rolling refresh cycle</span>
+                  <span class="text-slate-600 block text-xs">• Deep Think reasoning models</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-slate-800">Massive Continuous Volume</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">Sustains multiple automated parallel subagents
+                    running continuously all day.</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs">
+                  <span class="font-semibold text-slate-800">Agencies &amp; Multi-Agent Swarms:</span> Exceptional
+                  power, but unnecessary overhead for building a single company's custom HRIS MVP.
+                </td>
+              </tr>
+
+              <!-- Claude Code PRO -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Claude Code PRO
+                  <span class="text-[11px] text-slate-500 font-normal block mt-0.5">(Anthropic CLI Agent - Pro)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-semibold text-[#0a192f]">
+                  $22.40 / mo (₱1,400+)
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-slate-800">Token Context Quota:</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">• Shared pool with Claude.ai web</span>
+                  <span class="text-slate-600 block text-xs">• 5-hour rolling windows &amp; weekly cap</span>
+                  <span class="text-slate-600 block text-xs">• Reads large repository context</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-semibold text-slate-800">Moderate on Pro (~40–80 deep tasks/wk)</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">Consumes tokens quickly on full codebases; best for
+                    targeted terminal refactoring.</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs">
+                  <span class="font-semibold text-slate-800">Terminal Power Developers:</span> Superb architectural
+                  refactoring and algorithm design in CLI. Requires senior developer execution oversight.
+                </td>
+              </tr>
+
+              <!-- Claude Code MAX -->
+              <tr class="hover:bg-slate-50/40 transition-colors bg-lime-50/20">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  <div class="flex items-center space-x-1.5">
+                    <span>Claude Code MAX</span>
+                  </div>
+                  <span class="text-[11px] text-emerald-700 font-bold block mt-0.5">Fable Agent Level</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-bold text-[#0a192f]">
+                  $100 / mo (₱5,900)
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">(High-Capacity Max Tier)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-teal-800">5x+ Frontier Agent Quota:</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">• 5x higher prompt limits vs standard Pro</span>
+                  <span class="text-slate-600 block text-xs">• Extended multi-file autonomous reasoning</span>
+                  <span class="text-slate-600 block text-xs">• Full repository architecture reasoning</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)]">
+                  <span class="font-bold text-teal-800">Massive Agentic Capacity</span>
+                  <span class="text-slate-600 block text-xs mt-0.5">Sustains complete autonomous refactoring of complex
+                    statutory tax formulas, payroll engines, and test suites with zero throttling.</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs">
+                  <strong class="text-[#0a192f]">★ Top Pick for High-Quality Agentic Build:</strong> Industry-leading
+                  autonomous reasoning in terminal CLI. Solves intricate tax reconciliation algorithms and multi-file
+                  Next.js + PostgreSQL schema logic with unmatched agent precision.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Divider with Soft Lime Touch -->
+      <div class="h-px w-full bg-gradient-to-r from-transparent via-lime-200/60 to-transparent"></div>
+
+      <!-- ================= SECTION 5: REALISTIC INFRASTRUCTURE & COST MODEL ================= -->
+      <section>
+        <div class="flex items-center space-x-3 mb-4 scroll-reveal">
+          <div
+            class="w-7 h-7 rounded-lg bg-lime-100/70 border border-lime-300/80 flex items-center justify-center text-[#0a192f] font-bold text-xs code-font">
+            05
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-[#0a192f] tracking-tight">
+            Realistic Infrastructure &amp; Commercial Cost Model
+          </h2>
+        </div>
+
+        <p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6 scroll-reveal scroll-delay-1">
+          Transparent commercial breakdown separating the 3-month development testing phase from ongoing post-launch
+          production cloud infrastructure and backend automation maintenance:
+        </p>
+
+        <!-- TABLE: Realistic Infrastructure & Commercial Cost Model -->
+        <div
+          class="overflow-x-auto rounded-2xl border border-[rgba(146,209,79,0.35)] shadow-sm scroll-reveal scroll-delay-2">
+          <table class="w-full text-left text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr style="background-color: #f3f6fc;" class="border-b border-[rgba(146,209,79,0.35)]">
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[150px]">
+                  Component
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[160px]">
+                  Provider / Tool
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-extrabold highlight-devphase-header min-w-[145px]">
+                  <div class="flex items-center space-x-1.5">
+                    <span class="inline-block w-2 h-2 rounded-full bg-[#84cc16]"></span>
+                    <span>Dev Phase (Months 1–3)</span>
+                  </div>
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[160px]">
+                  Production (Post-Launch)
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold border-r border-[rgba(146,209,79,0.25)] min-w-[120px]">
+                  Annual Cost
+                </th>
+                <th class="p-3.5 sm:p-4 text-[#0a192f] font-bold min-w-[220px]">
+                  Scope &amp; Value Provided
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[rgba(146,209,79,0.25)] text-slate-700">
+              <!-- Row 1: Tools -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Developer IDE &amp; Tooling
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-medium text-slate-800">
+                  VS Code + Antigravity IDE
+                </td>
+                <td class="p-3.5 sm:p-4 highlight-devphase-col font-bold text-emerald-700">
+                  ₱0 Free
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-bold text-emerald-700">
+                  ₱0 Free
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-semibold text-slate-700">
+                  ₱0
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs">
+                  Industry-standard development environment, terminal automation, Git version control, and native AI
+                  pair programming with zero seat-license markups.
+                </td>
+              </tr>
+
+              <!-- Row 2: Labor -->
+              <tr class="hover:bg-slate-50/40 transition-colors bg-lime-50/20">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Engineering &amp; Build Labor
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-medium text-slate-800">
+                  In-House / Dedicated Team
+                </td>
+                <td class="p-3.5 sm:p-4 highlight-devphase-col font-bold text-emerald-700">
+                  ₱0 Free of Charge
+                  <span class="block text-[11px] text-emerald-600 font-normal mt-0.5">(3-Month Sweat Equity)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] text-slate-700">
+                  Milestone-Based <br><span class="text-[11px] text-slate-500">(Warranty / Retainer)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] text-slate-600">
+                  ₱0 during testing
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs">
+                  <strong class="text-[#0a192f]">100% Risk-Free Guarantee:</strong> 3 full months of architectural
+                  design, payroll formula calculation testing, MVP deployment, and system verification without upfront
+                  labor fees. If unapproved or unsuccessful, client pays zero labor fee.
+                </td>
+              </tr>
+
+              <!-- Row 3: Domain -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Custom Domain &amp; DNS Security
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-medium text-slate-800">
+                  Cloudflare Registrar
+                </td>
+                <td class="p-3.5 sm:p-4 highlight-devphase-col text-slate-600">
+                  ₱0 <span class="text-[11px] text-slate-500">(Staging subdomains)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-semibold text-[#0a192f]">
+                  ~₱700+ / yearly <span class="text-[11px] text-slate-500">(.com)</span>
+                  <span class="block text-[11px] text-slate-500 font-normal">or ~₱1,450/yr for .ph</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-semibold text-slate-700">
+                  ~₱700+ / yearly
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs">
+                  Wholesale at-cost domain pricing with zero markup fees, enterprise global edge DNS, automated SSL
+                  certificates, and enterprise DDoS protection.
+                </td>
+              </tr>
+
+              <!-- Row 4: Database & Storage -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Database &amp; Cloud Storage (Supabase)
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-medium text-slate-800">
+                  Supabase Self-Hosted on Cloud VPS
+                  <span class="block text-[11px] text-slate-600 font-semibold mt-0.5">KVM 2: (2 vCPU, 8 GB RAM, 100 GB
+                    NVMe, 8 TB bandwidth)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 highlight-devphase-col font-bold text-emerald-700">
+                  ₱0 Free
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">(Free Tier)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-bold text-[#0a192f]">
+                  ₱634.03 / month
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">Renews at ₱1,867.68 / month</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-semibold text-slate-700">
+                  ₱7,608.38 <span class="text-[11px] text-slate-500 font-normal">(1st Year)</span>
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">Renews at ₱22,412.18 / yr</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs">
+                  <strong class="text-[#0a192f]">Dedicated PostgreSQL &amp; Cloud Storage:</strong> Self-hosted
+                  Supabase instance running in Docker on high-performance KVM 2 VPS (2 vCPU, 8 GB RAM, 100 GB NVMe, 8 TB
+                  bandwidth). Includes dedicated PostgreSQL engine for employee 201 records, Row-Level Security (RLS),
+                  encrypted
+                  object storage for contracts &amp; tax files, with automated daily backups.
+                </td>
+              </tr>
+
+              <!-- Row 5: n8n Backend Automation Engine -->
+              <tr class="hover:bg-slate-50/40 transition-colors">
+                <td class="p-3.5 sm:p-4 font-bold text-black border-r border-[rgba(146,209,79,0.25)]">
+                  Backend Automation &amp; Task Engine
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-medium text-slate-800">
+                  n8n Self-Hosted on Cloud VPS
+                  <span class="block text-[11px] text-slate-600 font-semibold mt-0.5">KVM 2: (2 vCPU, 8 GB RAM, 100 GB
+                    NVMe, 8 TB bandwidth)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 highlight-devphase-col font-bold text-emerald-700">
+                  ₱0 Free
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">(Local/Staging Docker)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-bold text-[#0a192f]">
+                  ₱634.03 / month
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">Renews at ₱1,867.68 / month</span>
+                </td>
+                <td class="p-3.5 sm:p-4 border-r border-[rgba(146,209,79,0.25)] font-semibold text-slate-700">
+                  ₱7,608.38 <span class="text-[11px] text-slate-500 font-normal">(1st Year)</span>
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">Renews at ₱22,412.18 / yr</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs">
+                  <strong class="text-[#0a192f]">Dedicated Asynchronous Backend Flow:</strong> High-performance KVM 2
+                  VPS (2 vCPU, 8 GB RAM, 100 GB NVMe, 8 TB bandwidth) running n8n Community Edition in Docker. Handles
+                  CPU-heavy background tasks without slowing down the web app: automated PDF payslip generation and
+                  email distribution, scheduled payroll reminders (15th/30th cutoffs), biometric attendance sync cron
+                  jobs, and employee leave approval notifications.
+                </td>
+              </tr>
+
+              <!-- Row 6: AI Development Suite (Team Pick) - Highlighted Row & Borders -->
+              <tr class="transition-colors highlight-ai-row hover:bg-lime-100/70">
+                <td class="p-3.5 sm:p-4 font-bold text-black">
+                  <div class="flex items-center space-x-1.5 mb-0.5">
+                    <span class="inline-flex w-2 h-2 rounded-full bg-[#84cc16] animate-pulse"></span>
+                    <span class="font-black text-[#0a192f] text-xs sm:text-sm"> AI Tolls - Friendly Budget</span>
+                  </div>
+                </td>
+                <td class="p-3.5 sm:p-4 font-medium text-slate-800">
+                  <div class="flex items-center space-x-1.5 mb-1">
+                    <span
+                      class="inline-flex px-1.5 py-0.5 text-[10px] font-extrabold uppercase rounded bg-lime-200/90 text-[#0a192f] border border-lime-400">
+                      Two - Agent
+                      Level</span>
+                  </div>
+                  <span class="text-xs sm:text-sm font-bold text-slate-900">Google Antigravity Pro + Claude
+                    Code</span>
+                  <span class="block text-[11px] text-slate-600 font-medium mt-0.5">(₱1,100/mo + ₱1,400/mo)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 font-extrabold text-[#0a192f] highlight-devphase-intersection">
+                  <div class="text-sm sm:text-base font-black text-[#0a192f]">₱2,500 / month</div>
+                  <span
+                    class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-[11px] font-black bg-[#0a192f] text-lime-300 shadow-sm">
+                    ₱7,500 Total (Months 1–3)
+                  </span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-slate-700 font-semibold">
+                  <span class="font-bold text-emerald-800">₱0 Free</span>
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">(Build phase completed)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 font-bold text-slate-800">
+                  <span class="font-black text-[#0a192f]">₱7,500</span>
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">(Dev phase only)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs font-medium">
+                  <strong class="text-[#0a192f]">Quality of Agent Level:</strong> Leverages dual frontier coding agents
+                  throughout the 3 months of Test, Build, and Deploy. Combines <strong>Google Antigravity Pro</strong>
+                  (5-hour quota resets, full-stack VS Code IDE file edits, PostgreSQL schema migrations) with
+                  <strong>Claude Code</strong> (deep terminal-level refactoring and statutory Philippine payroll formula
+                  verification).
+                </td>
+              </tr>
+
+              <!-- Summary Total Row -->
+              <tr class="bg-slate-100/90 font-bold text-[#0a192f] border-t-2 border-[#0a192f]">
+                <td colspan="2"
+                  class="p-3.5 sm:p-4 text-black uppercase tracking-wider text-xs border-r border-[rgba(146,209,79,0.25)]">
+                  Project Financial Summary
+                </td>
+                <td class="p-3.5 sm:p-4 text-[#0a192f] font-extrabold highlight-devphase-col">
+                  ₱2,500 / month
+                  <span class="block text-[11px] text-emerald-800 font-bold mt-0.5">₱7,500 Total (DevPhase - 3
+                    Months)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-[#0a192f] font-extrabold border-r border-[rgba(146,209,79,0.25)]">
+                  ~₱1,325 / month
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">(Renews Year 2+ at
+                    ~₱3,795 / mo)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-[#0a192f] font-extrabold border-r border-[rgba(146,209,79,0.25)]">
+                  ~₱15,915 / yr
+                  <span class="block text-[11px] text-slate-600 font-normal mt-0.5 leading-tight">(Year 1 incl. Dev AI:
+                    ~₱23,415)</span>
+                  <span class="block text-[11px] text-slate-500 font-normal mt-0.5">(Renews Year 2+ at
+                    ~₱45,525 / yr)</span>
+                </td>
+                <td class="p-3.5 sm:p-4 text-xs font-semibold text-slate-800">
+                  <span class="text-[#0a192f] font-black">100% Code &amp; Data Ownership</span> with self-hosted VPS
+                  cloud
+                  infrastructure and ZERO recurring per-employee monthly subscription markup fees.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ================= OFFICIAL PLATFORM PRICING & CHECKOUT VERIFICATION PROOFS ================= -->
+        <div class="mt-10 pt-8 border-t border-[rgba(146,209,79,0.35)] scroll-reveal">
+          <div class="flex items-center space-x-3 mb-2">
+            <div
+              class="w-7 h-7 rounded-lg bg-lime-100/70 border border-lime-300/80 flex items-center justify-center text-[#0a192f] font-bold text-xs code-font">
+              <i data-lucide="shield-check" class="w-4 h-4 text-[#0a192f]"></i>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-[#0a192f] tracking-tight">
+              Official Platform Pricing &amp; Verification Proofs
+            </h3>
+          </div>
+          <p class="text-slate-600 text-xs sm:text-base mb-6">
+            Click through the verification slides or select any image to view in full resolution:
+          </p>
+
+          <div class="space-y-6">
+
+            <!-- Row 1: Hostinger Cloud VPS Proofs -->
+            <div class="lime-card rounded-2xl p-5 scroll-reveal scroll-delay-1" id="sliderRow1" data-current-index="0">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div class="flex items-center space-x-2">
+                  <span
+                    class="inline-flex px-2 py-0.5 text-[10px] font-extrabold uppercase rounded bg-lime-100 text-[#0a192f] border border-lime-300">
+                    Row 1
+                  </span>
+                  <span class="font-bold text-[#0a192f] text-sm sm:text-base">Hostinger Cloud VPS (n8n &amp;
+                    Supabase)</span>
+                </div>
+                <!-- Slide Controls -->
+                <div class="flex items-center space-x-1.5">
+                  <button type="button" onclick="prevSlide('sliderRow1')"
+                    class="w-7 h-7 rounded-lg border border-slate-200 hover:border-lime-400 bg-white hover:bg-lime-50 text-slate-700 flex items-center justify-center text-xs font-bold transition-all shadow-2xs"
+                    title="Previous Slide">
+                    &larr;
+                  </button>
+                  <button type="button" onclick="nextSlide('sliderRow1')"
+                    class="w-7 h-7 rounded-lg border border-slate-200 hover:border-lime-400 bg-white hover:bg-lime-50 text-slate-700 flex items-center justify-center text-xs font-bold transition-all shadow-2xs"
+                    title="Next Slide">
+                    &rarr;
+                  </button>
+                </div>
+              </div>
+
+              <!-- Clickable Slide Selector Buttons -->
+              <div class="flex flex-wrap gap-2 mb-3">
+                <button type="button" onclick="switchSlide('sliderRow1', 0)"
+                  class="slide-btn active px-3 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-lime-300 transition-all font-medium">
+                  1. n8n Hostinger
+                </button>
+                <button type="button" onclick="switchSlide('sliderRow1', 1)"
+                  class="slide-btn px-3 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-lime-300 transition-all font-medium">
+                  2. Supabase Hostinger
+                </button>
+                <button type="button" onclick="switchSlide('sliderRow1', 2)"
+                  class="slide-btn px-3 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-lime-300 transition-all font-medium">
+                  3. Pricing for the 1st month
+                </button>
+                <button type="button" onclick="switchSlide('sliderRow1', 3)"
+                  class="slide-btn px-3 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-lime-300 transition-all font-medium">
+                  4. KMV2 N8n
+                </button>
+              </div>
+
+              <!-- Slider Container -->
+              <div class="rounded-xl border border-slate-200/80 bg-slate-50/60 p-2 sm:p-3 shadow-2xs">
+                <!-- Slide 1 -->
+                <div class="slide-item active">
+                  <div class="text-xs font-bold text-slate-800 mb-2 px-1 flex items-center justify-between">
+                    <span>1. n8n Hostinger</span>
+                  </div>
+                  <div class="proof-img-container cursor-pointer"
+                    onclick="openLightbox(this.querySelector('img').src, '1. n8n Hostinger')">
+                    <img src="Image/N8nhostinger.png" data-imgname="N8nhostinger.png"
+                      onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='100. BOSS PAM/Image/'+this.dataset.imgname;}"
+                      alt="n8n Hostinger" class="w-full h-auto block" loading="lazy">
+                  </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="slide-item">
+                  <div class="text-xs font-bold text-slate-800 mb-2 px-1 flex items-center justify-between">
+                    <span>2. Supabase Hostinger</span>
+                  </div>
+                  <div class="proof-img-container cursor-pointer"
+                    onclick="openLightbox(this.querySelector('img').src, '2. Supabase Hostinger')">
+                    <img src="Image/Supabasehostinger.png" data-imgname="Supabasehostinger.png"
+                      onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='100. BOSS PAM/Image/'+this.dataset.imgname;}"
+                      alt="Supabase Hostinger" class="w-full h-auto block" loading="lazy">
+                  </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="slide-item">
+                  <div class="text-xs font-bold text-slate-800 mb-2 px-1 flex items-center justify-between">
+                    <span>3. Pricing for the 1st month</span>
+                  </div>
+                  <div class="proof-img-container cursor-pointer"
+                    onclick="openLightbox(this.querySelector('img').src, '3. Pricing for the 1st month')">
+                    <img src="Image/Pricing%20for%20the%201st%20month.png" data-imgname="Pricing for the 1st month.png"
+                      onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='100. BOSS PAM/Image/'+this.dataset.imgname;}"
+                      alt="Pricing for the 1st month" class="w-full h-auto block" loading="lazy">
+                  </div>
+                </div>
+
+                <!-- Slide 4 -->
+                <div class="slide-item">
+                  <div class="text-xs font-bold text-slate-800 mb-2 px-1 flex items-center justify-between">
+                    <span>4. KMV2 N8n</span>
+                  </div>
+                  <div class="proof-img-container cursor-pointer"
+                    onclick="openLightbox(this.querySelector('img').src, '4. KMV2 N8n')">
+                    <img src="Image/KMV2%20N8n.png" data-imgname="KMV2 N8n.png"
+                      onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='100. BOSS PAM/Image/'+this.dataset.imgname;}"
+                      alt="KMV2 N8n" class="w-full h-auto block" loading="lazy">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Links below Row 1 (strictly labeled 'Link') -->
+              <div class="flex flex-wrap items-center gap-2.5 pt-3 mt-2 border-t border-slate-100">
+                <a href="https://www.hostinger.com/ph/self-hosted-n8n" target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-[#0a192f] hover:bg-[#112240] text-white text-xs font-semibold shadow-xs transition-all hover:-translate-y-0.5">
+                  <span>Link</span>
+                  <i data-lucide="external-link" class="w-3 h-3 text-[#84cc16]"></i>
+                </a>
+                <a href="https://www.hostinger.com/ph/vps/supabase-hosting" target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-[#0a192f] hover:bg-[#112240] text-white text-xs font-semibold shadow-xs transition-all hover:-translate-y-0.5">
+                  <span>Link</span>
+                  <i data-lucide="external-link" class="w-3 h-3 text-[#84cc16]"></i>
+                </a>
+                <a href="https://cart.hostinger.com/pay/4c70bce5-a80b-4e72-8115-2af74ec00778" target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-[#0a192f] hover:bg-[#112240] text-white text-xs font-semibold shadow-xs transition-all hover:-translate-y-0.5">
+                  <span>Link</span>
+                  <i data-lucide="external-link" class="w-3 h-3 text-[#84cc16]"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- Row 2: Claude AI Pricing Proofs -->
+            <div class="lime-card rounded-2xl p-5 scroll-reveal scroll-delay-1" id="sliderRow2" data-current-index="0">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div class="flex items-center space-x-2">
+                  <span
+                    class="inline-flex px-2 py-0.5 text-[10px] font-extrabold uppercase rounded bg-lime-100 text-[#0a192f] border border-lime-300">
+                    Row 2
+                  </span>
+                  <span class="font-bold text-[#0a192f] text-sm sm:text-base">Claude AI (Pro &amp; Max Plans)</span>
+                </div>
+                <!-- Slide Controls -->
+                <div class="flex items-center space-x-1.5">
+                  <button type="button" onclick="prevSlide('sliderRow2')"
+                    class="w-7 h-7 rounded-lg border border-slate-200 hover:border-lime-400 bg-white hover:bg-lime-50 text-slate-700 flex items-center justify-center text-xs font-bold transition-all shadow-2xs"
+                    title="Previous Slide">
+                    &larr;
+                  </button>
+                  <button type="button" onclick="nextSlide('sliderRow2')"
+                    class="w-7 h-7 rounded-lg border border-slate-200 hover:border-lime-400 bg-white hover:bg-lime-50 text-slate-700 flex items-center justify-center text-xs font-bold transition-all shadow-2xs"
+                    title="Next Slide">
+                    &rarr;
+                  </button>
+                </div>
+              </div>
+
+              <!-- Clickable Slide Selector Buttons -->
+              <div class="flex flex-wrap gap-2 mb-3">
+                <button type="button" onclick="switchSlide('sliderRow2', 0)"
+                  class="slide-btn active px-3 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-lime-300 transition-all font-medium">
+                  1. Claude AI Pricing
+                </button>
+                <button type="button" onclick="switchSlide('sliderRow2', 1)"
+                  class="slide-btn px-3 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-lime-300 transition-all font-medium">
+                  2. Claude AI Pro
+                </button>
+                <button type="button" onclick="switchSlide('sliderRow2', 2)"
+                  class="slide-btn px-3 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-lime-300 transition-all font-medium">
+                  3. Claude Max Plan
+                </button>
+              </div>
+
+              <!-- Slider Container -->
+              <div class="rounded-xl border border-slate-200/80 bg-slate-50/60 p-2 sm:p-3 shadow-2xs">
+                <!-- Slide 1 -->
+                <div class="slide-item active">
+                  <div class="text-xs font-bold text-slate-800 mb-2 px-1 flex items-center justify-between">
+                    <span>1. Claude AI Pricing</span>
+                  </div>
+                  <div class="proof-img-container cursor-pointer"
+                    onclick="openLightbox(this.querySelector('img').src, '1. Claude AI Pricing')">
+                    <img src="Image/CLAUDE%20AI%20PRICING.png" data-imgname="CLAUDE AI PRICING.png"
+                      onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='100. BOSS PAM/Image/'+this.dataset.imgname;}"
+                      alt="Claude AI Pricing" class="w-full h-auto block" loading="lazy">
+                  </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="slide-item">
+                  <div class="text-xs font-bold text-slate-800 mb-2 px-1 flex items-center justify-between">
+                    <span>2. Claude AI Pro</span>
+                  </div>
+                  <div class="proof-img-container cursor-pointer"
+                    onclick="openLightbox(this.querySelector('img').src, '2. Claude AI Pro')">
+                    <img src="Image/ClaudAiPro.png" data-imgname="ClaudAiPro.png"
+                      onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='100. BOSS PAM/Image/'+this.dataset.imgname;}"
+                      alt="Claude AI Pro" class="w-full h-auto block" loading="lazy">
+                  </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="slide-item">
+                  <div class="text-xs font-bold text-slate-800 mb-2 px-1 flex items-center justify-between">
+                    <span>3. Claude Max Plan</span>
+                  </div>
+                  <div class="proof-img-container cursor-pointer"
+                    onclick="openLightbox(this.querySelector('img').src, '3. Claude Max Plan')">
+                    <img src="Image/Claude%20Max%20plan.png" data-imgname="Claude Max plan.png"
+                      onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='100. BOSS PAM/Image/'+this.dataset.imgname;}"
+                      alt="Claude Max Plan" class="w-full h-auto block" loading="lazy">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Links below Row 2 (strictly labeled 'Link') -->
+              <div class="flex flex-wrap items-center gap-2.5 pt-3 mt-2 border-t border-slate-100">
+                <a href="https://claude.ai/upgrade?from=model_selector" target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-[#0a192f] hover:bg-[#112240] text-white text-xs font-semibold shadow-xs transition-all hover:-translate-y-0.5">
+                  <span>Link</span>
+                  <i data-lucide="external-link" class="w-3 h-3 text-[#84cc16]"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- Row 3: Google Antigravity AI Pro Proofs -->
+            <div class="lime-card rounded-2xl p-5 scroll-reveal scroll-delay-1" id="sliderRow3" data-current-index="0">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div class="flex items-center space-x-2">
+                  <span
+                    class="inline-flex px-2 py-0.5 text-[10px] font-extrabold uppercase rounded bg-lime-100 text-[#0a192f] border border-lime-300">
+                    Row 3
+                  </span>
+                  <span class="font-bold text-[#0a192f] text-sm sm:text-base">Google Antigravity AI Pro</span>
+                </div>
+                <!-- Slide Controls -->
+                <div class="flex items-center space-x-1.5">
+                  <button type="button" onclick="prevSlide('sliderRow3')"
+                    class="w-7 h-7 rounded-lg border border-slate-200 hover:border-lime-400 bg-white hover:bg-lime-50 text-slate-700 flex items-center justify-center text-xs font-bold transition-all shadow-2xs"
+                    title="Previous Slide">
+                    &larr;
+                  </button>
+                  <button type="button" onclick="nextSlide('sliderRow3')"
+                    class="w-7 h-7 rounded-lg border border-slate-200 hover:border-lime-400 bg-white hover:bg-lime-50 text-slate-700 flex items-center justify-center text-xs font-bold transition-all shadow-2xs"
+                    title="Next Slide">
+                    &rarr;
+                  </button>
+                </div>
+              </div>
+
+              <!-- Clickable Slide Selector Buttons -->
+              <div class="flex flex-wrap gap-2 mb-3">
+                <button type="button" onclick="switchSlide('sliderRow3', 0)"
+                  class="slide-btn active px-3 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-lime-300 transition-all font-medium">
+                  1. Antigravity AI Pro
+                </button>
+                <button type="button" onclick="switchSlide('sliderRow3', 1)"
+                  class="slide-btn px-3 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:border-lime-300 transition-all font-medium">
+                  2. Antigravity AI Pro (Zoom Details)
+                </button>
+              </div>
+
+              <!-- Slider Container -->
+              <div class="rounded-xl border border-slate-200/80 bg-slate-50/60 p-2 sm:p-3 shadow-2xs">
+                <!-- Slide 1 -->
+                <div class="slide-item active">
+                  <div class="text-xs font-bold text-slate-800 mb-2 px-1 flex items-center justify-between">
+                    <span>1. Antigravity AI Pro</span>
+                  </div>
+                  <div class="proof-img-container cursor-pointer"
+                    onclick="openLightbox(this.querySelector('img').src, '1. Antigravity AI Pro')">
+                    <img src="Image/Antigravity%20AI%20Pro.png" data-imgname="Antigravity AI Pro.png"
+                      onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='100. BOSS PAM/Image/'+this.dataset.imgname;}"
+                      alt="Antigravity AI Pro" class="w-full h-auto block" loading="lazy">
+                  </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="slide-item">
+                  <div class="text-xs font-bold text-slate-800 mb-2 px-1 flex items-center justify-between">
+                    <span>2. Antigravity AI Pro (Zoom Details)</span>
+                  </div>
+                  <div class="proof-img-container cursor-pointer"
+                    onclick="openLightbox(this.querySelector('img').src, '2. Antigravity AI Pro (Zoom Details)')">
+                    <img src="Image/Antigravity%20AI%20Pro%20-%20zoom.png" data-imgname="Antigravity AI Pro - zoom.png"
+                      onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='100. BOSS PAM/Image/'+this.dataset.imgname;}"
+                      alt="Antigravity AI Pro - zoom" class="w-full h-auto block" loading="lazy">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Links below Row 3 (strictly labeled 'Link') -->
+              <div class="flex flex-wrap items-center gap-2.5 pt-3 mt-2 border-t border-slate-100">
+                <a href="https://one.google.com/ai?utm_source=antigravity&amp;utm_campaign=argon_limit_reached&amp;pli=1&amp;g1_landing_page=75"
+                  target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-[#0a192f] hover:bg-[#112240] text-white text-xs font-semibold shadow-xs transition-all hover:-translate-y-0.5">
+                  <span>Link</span>
+                  <i data-lucide="external-link" class="w-3 h-3 text-[#84cc16]"></i>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Divider with Soft Lime Touch -->
+      <div class="h-px w-full bg-gradient-to-r from-transparent via-lime-200/60 to-transparent"></div>
+
+      <!-- ================= SECTION 6: PHILIPPINE STATUTORY & SYSTEM FEATURES ================= -->
+      <section>
+        <div class="flex items-center space-x-3 mb-4 scroll-reveal">
+          <div
+            class="w-7 h-7 rounded-lg bg-lime-100/70 border border-lime-300/80 flex items-center justify-center text-[#0a192f] font-bold text-xs code-font">
+            06
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-[#0a192f] tracking-tight">
+            Additional Key Discussion Topics (Philippine Statutory &amp; System Features)
+          </h2>
+        </div>
+
+        <p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6 scroll-reveal scroll-delay-1">
+          To ensure full compliance and operational efficiency, the payroll system architecture accounts for the
+          following specialized logic:
+        </p>
+
+        <!-- 4 Specialized Logic Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+          <!-- Feature 1: Philippine Statutory Contribution Engine -->
+          <div
+            class="lime-card rounded-2xl p-5 sm:p-6 relative overflow-hidden flex flex-col justify-between scroll-reveal scroll-delay-1">
+            <div>
+              <div class="flex items-start justify-between mb-3">
+                <div
+                  class="w-10 h-10 rounded-xl bg-lime-50 border border-lime-200/90 flex items-center justify-center text-[#0a192f] shrink-0">
+                  <i data-lucide="calculator" class="w-5 h-5 text-[#84cc16]"></i>
+                </div>
+                <span
+                  class="code-font text-[10px] uppercase font-semibold text-slate-500 bg-slate-50 px-2.5 py-0.5 rounded border border-slate-200">
+                  Compliance Engine
+                </span>
+              </div>
+              <h3
+                class="text-sm sm:text-base font-bold text-white bg-[#0a192f] px-3.5 py-2.5 rounded-xl mb-3 shadow-xs">
+                Philippine Statutory Contribution Engine
+              </h3>
+              <div class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                Automated gross-to-net calculations incorporating SSS (including WISP), PhilHealth, Pag-IBIG, and BIR
+                Withholding Tax tables. Configurable contribution frequency (e.g., 1st half, 2nd half, or split monthly
+                deduction).
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 2: Flexible Attendance & Shift Scheduling -->
+          <div
+            class="lime-card rounded-2xl p-5 sm:p-6 relative overflow-hidden flex flex-col justify-between scroll-reveal scroll-delay-2">
+            <div>
+              <div class="flex items-start justify-between mb-3">
+                <div
+                  class="w-10 h-10 rounded-xl bg-lime-50 border border-lime-200/90 flex items-center justify-center text-[#0a192f] shrink-0">
+                  <i data-lucide="clock" class="w-5 h-5 text-[#84cc16]"></i>
+                </div>
+                <span
+                  class="code-font text-[10px] uppercase font-semibold text-slate-500 bg-slate-50 px-2.5 py-0.5 rounded border border-slate-200">
+                  DOLE Shift Rules
+                </span>
+              </div>
+              <h3
+                class="text-sm sm:text-base font-bold text-white bg-[#0a192f] px-3.5 py-2.5 rounded-xl mb-3 shadow-xs">
+                Flexible Attendance &amp; Shift Scheduling
+              </h3>
+              <div class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                Support for night differential, regular/special non-working holiday pay multipliers, overtime rates, and
+                grace-period tardiness deductions.
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 3: 13th-Month & Annual Tax Reconciliation -->
+          <div
+            class="lime-card rounded-2xl p-5 sm:p-6 relative overflow-hidden flex flex-col justify-between scroll-reveal scroll-delay-3">
+            <div>
+              <div class="flex items-start justify-between mb-3">
+                <div
+                  class="w-10 h-10 rounded-xl bg-lime-50 border border-lime-200/90 flex items-center justify-center text-[#0a192f] shrink-0">
+                  <i data-lucide="file-spreadsheet" class="w-5 h-5 text-[#84cc16]"></i>
+                </div>
+                <span
+                  class="code-font text-[10px] uppercase font-semibold text-slate-500 bg-slate-50 px-2.5 py-0.5 rounded border border-slate-200">
+                  BIR Form 2316
+                </span>
+              </div>
+              <h3
+                class="text-sm sm:text-base font-bold text-white bg-[#0a192f] px-3.5 py-2.5 rounded-xl mb-3 shadow-xs">
+                13th-Month &amp; Annual Tax Reconciliation (BIR Form 2316)
+              </h3>
+              <div class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                Automated annualization calculations to determine tax refunds or payable adjustments in December.
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 4: Audit Trail & Role-Based Access -->
+          <div
+            class="lime-card rounded-2xl p-5 sm:p-6 relative overflow-hidden flex flex-col justify-between scroll-reveal scroll-delay-4">
+            <div>
+              <div class="flex items-start justify-between mb-3">
+                <div
+                  class="w-10 h-10 rounded-xl bg-lime-50 border border-lime-200/90 flex items-center justify-center text-[#0a192f] shrink-0">
+                  <i data-lucide="shield-check" class="w-5 h-5 text-[#84cc16]"></i>
+                </div>
+                <span
+                  class="code-font text-[10px] uppercase font-semibold text-slate-500 bg-slate-50 px-2.5 py-0.5 rounded border border-slate-200">
+                  DPA 2012 Security
+                </span>
+              </div>
+              <h3
+                class="text-sm sm:text-base font-bold text-white bg-[#0a192f] px-3.5 py-2.5 rounded-xl mb-3 shadow-xs">
+                Audit Trail &amp; Role-Based Access
+              </h3>
+              <div class="text-slate-700 text-xs sm:text-sm leading-relaxed">
+                Immutable transaction logging for all salary adjustments, bonus approvals, and employee profile edits.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Divider with Soft Lime Touch -->
+      <div class="h-px w-full bg-gradient-to-r from-transparent via-lime-200/60 to-transparent"></div>
+
+      <!-- ================= SECTION 7: SUMMARY & FINAL FINANCIAL RECAP ================= -->
+      <section>
+        <div class="flex items-center space-x-3 mb-4 scroll-reveal">
+          <div
+            class="w-7 h-7 rounded-lg bg-lime-100/70 border border-lime-300/80 flex items-center justify-center text-[#0a192f] font-bold text-xs code-font">
+            07
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-[#0a192f] tracking-tight">
+            Summary &amp; Final Financial Recap
+          </h2>
+        </div>
+
+        <p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6 scroll-reveal scroll-delay-1">
+          A high-level synthesis of the discovery framework, technical architecture, and transparent cost breakdown
+          across all proposal phases:
+        </p>
+
+        <!-- Financial KPI Highlight Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 scroll-reveal scroll-delay-2">
+          <!-- Card 1: Dev Phase AI Tools -->
+          <div class="lime-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between border-t-2 border-t-[#84cc16]">
+            <div>
+              <span class="code-font text-[10px] uppercase font-semibold text-slate-400">Dev Phase (Mo. 1–3)</span>
+              <div class="text-xl sm:text-2xl font-black text-[#0a192f] mt-1">₱7,500 <span
+                  class="text-xs font-semibold text-slate-500">Total</span></div>
+            </div>
+            <div class="text-xs text-slate-600 mt-2 font-medium">
+              ₱2,500 / mo for Google Antigravity Pro + Claude Code tooling.
+            </div>
+          </div>
+
+          <!-- Card 2: Year 1 Infrastructure -->
+          <div class="lime-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between border-t-2 border-t-[#84cc16]">
+            <div>
+              <span class="code-font text-[10px] uppercase font-semibold text-slate-400">Hostinger KVM 2 VPS</span>
+              <div class="text-xl sm:text-2xl font-black text-[#0a192f] mt-1">₱7,608.38 <span
+                  class="text-xs font-semibold text-slate-500">1st Year</span></div>
+            </div>
+            <div class="text-xs text-slate-600 mt-2 font-medium">
+              2 vCPU, 8 GB RAM, 100 GB NVMe for self-hosted n8n &amp; Supabase.
+            </div>
+          </div>
+
+          <!-- Card 3: Year 1 Total Baseline -->
+          <div
+            class="lime-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between border-t-2 border-t-[#84cc16] bg-lime-50/30">
+            <div>
+              <span class="code-font text-[10px] uppercase font-semibold text-emerald-800">Total Year 1 Outlay</span>
+              <div class="text-xl sm:text-2xl font-black text-[#0a192f] mt-1">~₱23,415 <span
+                  class="text-xs font-semibold text-slate-500">All-In</span></div>
+            </div>
+            <div class="text-xs text-slate-600 mt-2 font-medium">
+              Includes 3-mo AI dev suite, Cloud VPS hosting, and custom domain.
+            </div>
+          </div>
+
+          <!-- Card 4: Per-Seat SaaS Markups -->
+          <div class="lime-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between border-t-2 border-t-[#84cc16]">
+            <div>
+              <span class="code-font text-[10px] uppercase font-semibold text-slate-400">Monthly Seat Fees</span>
+              <div class="text-xl sm:text-2xl font-black text-emerald-600 mt-1">₱0 <span
+                  class="text-xs font-semibold text-slate-500">/ employee</span></div>
+            </div>
+            <div class="text-xs text-slate-600 mt-2 font-medium">
+              100% data &amp; code ownership with zero recurring per-user penalties.
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Synthesis Cards (2 Columns) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8 scroll-reveal scroll-delay-2">
+          <!-- Architecture & AI Acceleration Recap -->
+          <div class="lime-card rounded-2xl p-5 sm:p-6">
+            <h3
+              class="text-sm sm:text-base font-bold text-white bg-[#0a192f] px-3.5 py-2.5 rounded-xl mb-3 flex items-center justify-between">
+              <span>Technical &amp; Development Strategy (Sec. 1–4)</span>
+              <i data-lucide="cpu" class="w-4 h-4 text-[#84cc16]"></i>
+            </h3>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-600">
+              <li class="flex items-start space-x-2">
+                <span class="text-[#84cc16] font-bold mt-0.5">•</span>
+                <span><strong>Salarium-Grade Experience:</strong> Custom Next.js &amp; Tailwind interface offering
+                  responsive desktop and mobile dashboards without low-code layout restrictions.</span>
+              </li>
+              <li class="flex items-start space-x-2">
+                <span class="text-[#84cc16] font-bold mt-0.5">•</span>
+                <span><strong>AI-First Build Velocity:</strong> Leveraging Google Antigravity Pro and Claude Code to
+                  deliver Phase 1 MVP in 2–6 weeks with continuous Philippine tax syntax testing.</span>
+              </li>
+              <li class="flex items-start space-x-2">
+                <span class="text-[#84cc16] font-bold mt-0.5">•</span>
+                <span><strong>Zero Vendor Lock-in:</strong> Full handover of GitHub repository, PostgreSQL database
+                  schemas, and self-hosted automation workflows.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Production & Compliance Recap -->
+          <div class="lime-card rounded-2xl p-5 sm:p-6">
+            <h3
+              class="text-sm sm:text-base font-bold text-white bg-[#0a192f] px-3.5 py-2.5 rounded-xl mb-3 flex items-center justify-between">
+              <span>Production &amp; Statutory Compliance (Sec. 5–6)</span>
+              <i data-lucide="shield-check" class="w-4 h-4 text-[#84cc16]"></i>
+            </h3>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-600">
+              <li class="flex items-start space-x-2">
+                <span class="text-[#84cc16] font-bold mt-0.5">•</span>
+                <span><strong>Enterprise VPS Power:</strong> Hostinger KVM 2 Cloud VPS running isolated Docker instances
+                  of Supabase (PostgreSQL 201 records) and n8n background schedulers.</span>
+              </li>
+              <li class="flex items-start space-x-2">
+                <span class="text-[#84cc16] font-bold mt-0.5">•</span>
+                <span><strong>Philippine Statutory Precision:</strong> Automated gross-to-net calculations for SSS/WISP,
+                  PhilHealth, Pag-IBIG, and graduated TRAIN Law withholding tax tables.</span>
+              </li>
+              <li class="flex items-start space-x-2">
+                <span class="text-[#84cc16] font-bold mt-0.5">•</span>
+                <span><strong>DOLE &amp; Year-End Rules:</strong> Automated holiday/night-diff multipliers, 13th-month
+                  &amp; BIR Form 2316 tax reconciliation, and immutable audit logs.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Next Steps for Today's Call Card -->
+        <div
+          class="lime-card rounded-2xl p-6 sm:p-7 bg-gradient-to-br from-white via-lime-50/20 to-slate-50 border border-lime-300 shadow-md scroll-reveal scroll-delay-2">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-8 h-8 rounded-xl bg-[#0a192f] text-white flex items-center justify-center font-bold text-sm">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-[#84cc16]"></i>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-[#0a192f] tracking-tight">
+                Next Steps for Today's Call
+              </h3>
+              <p class="text-xs text-slate-500">Action items to finalize during our discovery and alignment discussion:
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div class="p-3.5 rounded-xl border border-slate-200/80 bg-white shadow-2xs flex items-start space-x-3">
+              <span
+                class="w-6 h-6 rounded-full bg-lime-100 text-[#0a192f] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <div>
+                <h4 class="text-xs font-bold text-[#0a192f]">Clarify Timeline &amp; MVP Priorities</h4>
+                <p class="text-[11px] text-slate-600 mt-0.5 leading-snug">Confirm target go-live window (2 to 6 weeks)
+                  and define mandatory Phase 1 deliverables (e.g., Attendance &amp; Timesheet cutoffs vs. full Statutory
+                  Payroll).</p>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl border border-slate-200/80 bg-white shadow-2xs flex items-start space-x-3">
+              <span
+                class="w-6 h-6 rounded-full bg-lime-100 text-[#0a192f] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <div>
+                <h4 class="text-xs font-bold text-[#0a192f]">Approve Cloud Hosting Architecture</h4>
+                <p class="text-[11px] text-slate-600 mt-0.5 leading-snug">Review and validate Hostinger KVM 2 Cloud VPS
+                  checkout (₱7,608.38/yr) for staging and dedicated Supabase/n8n Docker instances.</p>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl border border-slate-200/80 bg-white shadow-2xs flex items-start space-x-3">
+              <span
+                class="w-6 h-6 rounded-full bg-lime-100 text-[#0a192f] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <div>
+                <h4 class="text-xs font-bold text-[#0a192f]">Gather Sample Payroll &amp; Shift Rules</h4>
+                <p class="text-[11px] text-slate-600 mt-0.5 leading-snug">Identify current payroll cutoff frequency
+                  (semi-monthly or monthly), grace-period tolerances, and active employee salary brackets for formula
+                  configuration.</p>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl border border-slate-200/80 bg-white shadow-2xs flex items-start space-x-3">
+              <span
+                class="w-6 h-6 rounded-full bg-lime-100 text-[#0a192f] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">4</span>
+              <div>
+                <h4 class="text-xs font-bold text-[#0a192f]">Schedule Phase 1 Prototype Walkthrough</h4>
+                <p class="text-[11px] text-slate-600 mt-0.5 leading-snug">Lock in initial UI and live calculation demo
+                  within 7–10 days of project kickoff.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- Document Footer Watermark / Proposal Ready -->
+    <footer
+      class="mt-14 pt-8 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-400 code-font scroll-reveal">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="file-check-2" class="w-4 h-4 text-[#84cc16]"></i>
+        <span>DISCOVERY FRAMEWORK • COMPLETE</span>
+      </div>
+      <div>
+        <span class="text-[#0a192f] font-bold">READY FOR IMPLEMENTATION &rarr;</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Lightbox Modal for Full Proof Image View -->
+  <div id="imageLightboxModal"
+    class="fixed inset-0 z-50 bg-[#0a192f]/85 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6"
+    onclick="if(event.target === this) closeLightbox()">
+    <div
+      class="relative max-w-4xl w-full bg-white rounded-2xl shadow-2xl border border-lime-300 overflow-hidden flex flex-col max-h-[92vh]">
+      <div class="flex items-center justify-between p-3.5 sm:p-4 border-b border-slate-100 bg-slate-50">
+        <h4 id="lightboxTitle" class="font-bold text-[#0a192f] text-sm sm:text-base">Verification Proof</h4>
+        <button onclick="closeLightbox()"
+          class="w-8 h-8 rounded-lg bg-slate-200/80 hover:bg-slate-300 text-slate-700 flex items-center justify-center text-sm font-bold transition-colors">
+          ✕
+        </button>
+      </div>
+      <div class="p-3 sm:p-4 overflow-auto flex items-center justify-center bg-slate-100/50">
+        <img id="lightboxImg" src="" alt="Proof Preview"
+          class="max-w-full max-h-[78vh] object-contain rounded-lg shadow-sm">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Verification Proof Slider Functionality
+    function switchSlide(rowId, index) {
+      const container = document.getElementById(rowId);
+      if (!container) return;
+      const items = container.querySelectorAll('.slide-item');
+      const btns = container.querySelectorAll('.slide-btn');
+      const count = items.length;
+      if (count === 0) return;
+      if (index < 0) index = 0;
+      if (index >= count) index = count - 1;
+
+      items.forEach((item, i) => {
+        if (i === index) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+      btns.forEach((btn, i) => {
+        if (i === index) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      container.dataset.currentIndex = index;
+    }
+
+    function prevSlide(rowId) {
+      const container = document.getElementById(rowId);
+      if (!container) return;
+      const items = container.querySelectorAll('.slide-item');
+      if (items.length === 0) return;
+      let cur = parseInt(container.dataset.currentIndex || '0', 10);
+      const nextIdx = (cur - 1 + items.length) % items.length;
+      switchSlide(rowId, nextIdx);
+    }
+
+    function nextSlide(rowId) {
+      const container = document.getElementById(rowId);
+      if (!container) return;
+      const items = container.querySelectorAll('.slide-item');
+      if (items.length === 0) return;
+      let cur = parseInt(container.dataset.currentIndex || '0', 10);
+      switchSlide(rowId, (cur + 1) % items.length);
+    }
+
+    // Lightbox modal controls
+    function openLightbox(src, title) {
+      const modal = document.getElementById('imageLightboxModal');
+      const modalImg = document.getElementById('lightboxImg');
+      const modalTitle = document.getElementById('lightboxTitle');
+      if (!modal || !modalImg) return;
+      modalImg.src = src;
+      if (modalTitle) modalTitle.textContent = title || 'Verification Proof';
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('imageLightboxModal');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    // Ultra-Smooth Bidirectional Scroll Trigger Animation (Scroll Down & Scroll Up)
+    function initScrollReveal() {
+      const revealElements = document.querySelectorAll('.scroll-reveal');
+      if (!revealElements.length) return;
+
+      // Fallback for browsers without IntersectionObserver
+      if (!('IntersectionObserver' in window)) {
+        revealElements.forEach((el) => el.classList.add('is-visible'));
+        return;
+      }
+
+      // 1. Initial pass: immediately reveal elements already visible in viewport
+      const viewH = window.innerHeight || document.documentElement.clientHeight;
+      revealElements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < viewH * 0.92 && rect.bottom > 15) {
+          el.classList.add('is-visible');
+        }
+      });
+
+      // 2. IntersectionObserver with hysteresis safety buffer to prevent edge fluttering
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+          } else {
+            // Anti-glitch hysteresis check:
+            // Only un-reveal when element has genuinely exited beyond a 45px safety buffer.
+            // Because the translateY displacement is 22px, a 45px margin guarantees
+            // resetting the transform can NEVER bounce the element back into the viewport edge.
+            const rect = entry.boundingClientRect;
+            const currentViewH = window.innerHeight || document.documentElement.clientHeight;
+            const isFarAbove = rect.bottom < -45;
+            const isFarBelow = rect.top > (currentViewH + 45);
+
+            if (isFarAbove || isFarBelow) {
+              entry.target.classList.remove('is-visible');
+            }
+          }
+        });
+      }, {
+        root: null,
+        rootMargin: '15px 0px -25px 0px',
+        threshold: 0.05
+      });
+
+      revealElements.forEach((el) => observer.observe(el));
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initScrollReveal);
+    } else {
+      initScrollReveal();
+    }
+  </script>
+</body>
+
+</html>
